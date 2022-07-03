@@ -4,10 +4,10 @@ import ModalCustom from "../../../../components/ModalCustom";
 import Table from "../../../../components/Table";
 import productApi from "../../../../services/productApi";
 
-function ProductList(props) {
+function ProductList() {
   const [productList, setProductList] = useState([]);
   const [active, setActive] = useState(false);
-  const [created, setCreated] = useState(null);
+  const [isAction, setIsAction] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -18,28 +18,24 @@ function ProductList(props) {
         console.log("fetch to fail", error);
       }
     })();
-  }, [productList]);
+  }, []);
 
-  const handleOpenModal = () => {
+  const openModalDeleteProduct = (product) => {
+    setIsAction({ action: "delete", product });
+  };
+
+  const openModalAddProduct = () => {
     setActive(true);
+    setIsAction({ action: "create" });
   };
 
-  const handleCloseModal = () => {
-    setActive(false);
+  const openModalEditProduct = (product) => {
+    console.log(product);
+    setActive(true);
+    setIsAction({ action: "edit", product });
   };
 
-  const handleSubmit = async (formData) => {
-    try {
-      const res = await productApi.create(formData);
-      if (res.success) {
-        setActive(false);
-      }
-    } catch (error) {
-      console.log("create data not success", error);
-    }
-  };
-
-  const handleDeleteProduct = async (id) => {
+  const handleAcceptDelete = async (id) => {
     try {
       await productApi.delete(id);
     } catch (error) {
@@ -47,38 +43,65 @@ function ProductList(props) {
     }
   };
 
-  const handleEditProduct = (product) => {
-    setCreated(product);
-    setActive(true);
+  const handleCreateProduct = async (product) => {
+    try {
+      await productApi.create(product);
+    } catch (error) {
+      console.log("create data fail", error);
+    }
+  };
+
+  const handleEditProduct = async (product) => {
+    try {
+      await productApi.update(product);
+    } catch (error) {
+      console.log("edit data fail", error);
+    }
   };
 
   return (
     <div>
       <Heading>Product List</Heading>
       <div style={{ marginBottom: "20px", marginTop: "10px" }}>
-        <Button primary onClick={handleOpenModal}>
+        <Button primary onClick={openModalAddProduct}>
           Add Product
         </Button>
       </div>
 
       <Table
         productList={productList}
-        onDelete={handleDeleteProduct}
-        onEdit={handleEditProduct}
+        onDelete={openModalDeleteProduct}
+        onEdit={openModalEditProduct}
+        setActive={setActive}
       />
 
-      {created ? (
+      {isAction?.action === "delete" && (
         <ModalCustom
           active={active}
-          onClose={handleCloseModal}
-          onSubmit={handleSubmit}
+          setActive={setActive}
+          isAction={isAction}
+          setIsAction={setIsAction}
+          onDelete={handleAcceptDelete}
         />
-      ) : (
+      )}
+
+      {isAction?.action === "create" && (
         <ModalCustom
           active={active}
-          data={created}
-          onClose={handleCloseModal}
-          onSubmit={handleSubmit}
+          setActive={setActive}
+          isAction={isAction}
+          setIsAction={setIsAction}
+          onSubmit={handleCreateProduct}
+        />
+      )}
+
+      {isAction?.action === "edit" && (
+        <ModalCustom
+          active={active}
+          setActive={setActive}
+          isAction={isAction}
+          setIsAction={setIsAction}
+          onSubmit={handleEditProduct}
         />
       )}
     </div>

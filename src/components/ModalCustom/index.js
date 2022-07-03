@@ -10,7 +10,14 @@ import {
 import { useEffect, useState } from "react";
 import productApi from "../../services/productApi";
 
-function ModalCustom({ active, onClose, onSubmit }) {
+function ModalCustom({
+  active,
+  setActive,
+  isAction,
+  setIsAction,
+  onDelete,
+  onSubmit,
+}) {
   const [brandList, setBrandList] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
@@ -27,6 +34,18 @@ function ModalCustom({ active, onClose, onSubmit }) {
   };
 
   useEffect(() => {
+    if (isAction.action === "edit")
+      setFormData((prevState) => ({
+        ...prevState,
+        title: isAction.product.title,
+        description: isAction.product.description,
+        price: isAction.product.price,
+        brandId: isAction.product.brandId,
+        id: isAction.product.id,
+      }));
+  }, []);
+
+  useEffect(() => {
     (async () => {
       const brands = await productApi.getAllBrand();
 
@@ -41,63 +60,161 @@ function ModalCustom({ active, onClose, onSubmit }) {
     };
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleConfirmDelete = (id) => {
+    onDelete(id);
+    setIsAction(null);
+  };
 
-    onSubmit(formData);
+  const handleSubmit = () => {
+    if (isAction.action === "create") {
+      onSubmit(formData);
+      setFormData({
+        title: "",
+        description: "",
+        price: 0,
+        brandId: "1",
+      });
+
+      setIsAction(null);
+    }
+
+    if (isAction.action === "edit") {
+      onSubmit(formData);
+      setFormData({
+        title: "",
+        description: "",
+        price: 0,
+        brandId: "1",
+      });
+
+      setIsAction(null);
+    }
+
+    setActive(false);
   };
 
   return (
-    <div style={{ height: "500px" }}>
-      <Modal
-        // activator={activator}
-        open={active}
-        onClose={onClose}
-        title="Add new Product"
-        secondaryActions={[
-          {
-            content: "Cancel",
-          },
-        ]}
-      >
-        <Modal.Section>
-          <TextContainer>
-            <Form onSubmit={handleSubmit}>
-              <FormLayout>
-                <TextField
-                  label="Title"
-                  type="text"
-                  value={formData.title}
-                  onChange={(value) => onChange("title", value)}
-                />
-                <TextField
-                  label="Description"
-                  type="text"
-                  value={formData.description}
-                  onChange={(value) => onChange("description", value)}
-                />
-                <TextField
-                  label="Price"
-                  type="number"
-                  value={formData.price}
-                  onChange={(value) => onChange("price", value)}
-                />
+    <>
+      {isAction.action === "delete" && (
+        <Modal
+          open={active}
+          onClose={() => setActive(false)}
+          title="Delete product"
+        >
+          <Modal.Section>
+            <TextContainer>
+              <Form>
+                <p>
+                  Are you sure you want to delete this product
+                  <span style={{ color: "red" }}>{isAction.product.title}</span>
+                  ?
+                </p>
+                <div>
+                  <Button onClick={() => setActive(false)}>Cancel</Button>
 
-                <Select
-                  label="Select Brand"
-                  options={options}
-                  value={formData.brandId}
-                  onChange={(value) => onChange("brandId", value)}
-                />
-                <Button primary submit>
-                  Create
-                </Button>
-              </FormLayout>
-            </Form>
-          </TextContainer>
-        </Modal.Section>
-      </Modal>
-    </div>
+                  <Button
+                    primary
+                    onClick={() => handleConfirmDelete(isAction.product.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </Form>
+            </TextContainer>
+          </Modal.Section>
+        </Modal>
+      )}
+
+      {isAction.action === "create" && (
+        <Modal
+          open={active}
+          onClose={() => setActive(false)}
+          title="Add new Product"
+        >
+          <Modal.Section>
+            <TextContainer>
+              <Form onSubmit={handleSubmit}>
+                <FormLayout>
+                  <TextField
+                    label="Title"
+                    type="text"
+                    value={formData.title}
+                    onChange={(value) => onChange("title", value)}
+                  />
+                  <TextField
+                    label="Description"
+                    type="text"
+                    value={formData.description}
+                    onChange={(value) => onChange("description", value)}
+                  />
+                  <TextField
+                    label="Price"
+                    type="number"
+                    value={formData.price}
+                    onChange={(value) => onChange("price", value)}
+                  />
+
+                  <Select
+                    label="Select Brand"
+                    options={options}
+                    value={formData.brandId}
+                    onChange={(value) => onChange("brandId", value)}
+                  />
+                  <Button primary submit>
+                    Create
+                  </Button>
+                </FormLayout>
+              </Form>
+            </TextContainer>
+          </Modal.Section>
+        </Modal>
+      )}
+
+      {isAction.action === "edit" && (
+        <Modal
+          open={active}
+          onClose={() => setActive(false)}
+          title="Edit Product"
+        >
+          <Modal.Section>
+            <TextContainer>
+              <Form onSubmit={handleSubmit}>
+                <FormLayout>
+                  <TextField
+                    label="Title"
+                    type="text"
+                    value={formData.title}
+                    onChange={(value) => onChange("title", value)}
+                  />
+                  <TextField
+                    label="Description"
+                    type="text"
+                    value={formData.description}
+                    onChange={(value) => onChange("description", value)}
+                  />
+                  <TextField
+                    label="Price"
+                    type="number"
+                    value={formData.price}
+                    onChange={(value) => onChange("price", value)}
+                  />
+
+                  <Select
+                    label="Select Brand"
+                    options={options}
+                    value={formData.brandId}
+                    onChange={(value) => onChange("brandId", value)}
+                  />
+                  <Button primary submit>
+                    Update
+                  </Button>
+                </FormLayout>
+              </Form>
+            </TextContainer>
+          </Modal.Section>
+        </Modal>
+      )}
+    </>
   );
 }
 
