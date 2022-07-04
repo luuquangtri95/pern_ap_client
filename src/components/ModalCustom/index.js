@@ -25,7 +25,6 @@ function ModalCustom({
     description: "",
     price: 0,
     brandId: "1",
-    files: [],
   });
 
   const onChange = (name, value) => {
@@ -75,7 +74,6 @@ function ModalCustom({
         description: "",
         price: 0,
         brandId: "1",
-        files: [],
       });
       setIsAction(null);
     }
@@ -98,7 +96,7 @@ function ModalCustom({
   const handleMultiImage = (fileList) => {
     setFormData((prevState) => ({
       ...prevState,
-      files: [...fileList],
+      files: fileList,
     }));
   };
 
@@ -142,7 +140,11 @@ function ModalCustom({
         >
           <Modal.Section>
             <TextContainer>
-              <Form onSubmit={handleSubmit} enctype="multipart/form-data">
+              <Form
+                onSubmit={handleSubmit}
+                method="POST"
+                enctype="multipart/form-data"
+              >
                 <FormLayout>
                   <TextField
                     label="Title"

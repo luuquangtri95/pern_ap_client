@@ -1,5 +1,6 @@
 import { Button, Card, Icon, IndexTable } from "@shopify/polaris";
 import { DeleteMinor, EditMinor } from "@shopify/polaris-icons";
+import { convertImgUrl } from "../../helpers/convertUrlImage";
 function Table({ productList, onDelete, onEdit, setActive }) {
   const handleDeleteProduct = (product) => {
     onDelete(product);
@@ -14,6 +15,9 @@ function Table({ productList, onDelete, onEdit, setActive }) {
   const rowMarkup = productList.map((product, index) => (
     <IndexTable.Row id={product.id} key={product.id}>
       <IndexTable.Cell>{index + 1}</IndexTable.Cell>
+      <IndexTable.Cell>
+        <img src={product.imageList[0]} alt={product.title} />
+      </IndexTable.Cell>
       <IndexTable.Cell>{product?.title}</IndexTable.Cell>
       <IndexTable.Cell>{product?.description}</IndexTable.Cell>
       <IndexTable.Cell>
@@ -52,6 +56,7 @@ function Table({ productList, onDelete, onEdit, setActive }) {
           selectable={false}
           headings={[
             { title: "Id" },
+            { title: "Image" },
             { title: "Title" },
             { title: "Description" },
             { title: "Price" },
