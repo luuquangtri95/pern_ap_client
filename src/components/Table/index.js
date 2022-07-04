@@ -16,7 +16,16 @@ function Table({ productList, onDelete, onEdit, setActive }) {
     <IndexTable.Row id={product.id} key={product.id}>
       <IndexTable.Cell>{index + 1}</IndexTable.Cell>
       <IndexTable.Cell>
-        <img src={product.imageList[0]} alt={product.title} />
+        <img
+          width={70}
+          height={70}
+          src={
+            product.imageList.length === 0
+              ? "https://via.placeholder.com/80x80"
+              : convertImgUrl(product.imageList[0])
+          }
+          alt={product.title}
+        />
       </IndexTable.Cell>
       <IndexTable.Cell>{product?.title}</IndexTable.Cell>
       <IndexTable.Cell>{product?.description}</IndexTable.Cell>
