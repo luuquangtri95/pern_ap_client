@@ -9,6 +9,7 @@ import {
 } from "@shopify/polaris";
 import { useEffect, useState } from "react";
 import productApi from "../../services/productApi";
+import DropZoneCustom from "../DropZoneCustom";
 
 function ModalCustom({
   active,
@@ -24,6 +25,7 @@ function ModalCustom({
     description: "",
     price: 0,
     brandId: "1",
+    files: [],
   });
 
   const onChange = (name, value) => {
@@ -40,7 +42,7 @@ function ModalCustom({
         title: isAction.product.title,
         description: isAction.product.description,
         price: isAction.product.price,
-        brandId: isAction.product.brandId,
+        brandId: isAction.product?.brand?.id.toString(),
         id: isAction.product.id,
       }));
   }, []);
@@ -65,16 +67,16 @@ function ModalCustom({
     setIsAction(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isAction.action === "create") {
-      onSubmit(formData);
+      await onSubmit(formData);
       setFormData({
         title: "",
         description: "",
         price: 0,
         brandId: "1",
+        files: [],
       });
-
       setIsAction(null);
     }
 
@@ -91,6 +93,13 @@ function ModalCustom({
     }
 
     setActive(false);
+  };
+
+  const handleMultiImage = (fileList) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      files: [...fileList],
+    }));
   };
 
   return (
@@ -133,7 +142,7 @@ function ModalCustom({
         >
           <Modal.Section>
             <TextContainer>
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit} enctype="multipart/form-data">
                 <FormLayout>
                   <TextField
                     label="Title"
@@ -153,6 +162,8 @@ function ModalCustom({
                     value={formData.price}
                     onChange={(value) => onChange("price", value)}
                   />
+
+                  <DropZoneCustom onMultiImage={handleMultiImage} />
 
                   <Select
                     label="Select Brand"

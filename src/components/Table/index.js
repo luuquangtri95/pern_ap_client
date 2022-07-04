@@ -17,9 +17,9 @@ function Table({ productList, onDelete, onEdit, setActive }) {
       <IndexTable.Cell>{product?.title}</IndexTable.Cell>
       <IndexTable.Cell>{product?.description}</IndexTable.Cell>
       <IndexTable.Cell>
-        {product?.price.toLocaleString("vi-VN", {
+        {product?.price?.toLocaleString("en-US", {
           style: "currency",
-          currency: "VND",
+          currency: "USD",
         })}
       </IndexTable.Cell>
       <IndexTable.Cell>{product?.brand?.name}</IndexTable.Cell>

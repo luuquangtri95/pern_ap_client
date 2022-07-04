@@ -13,7 +13,11 @@ const productApi = {
 
   create(data) {
     const url = "/products";
-    return axiosClient.post(url, data);
+    return axiosClient.post(url, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   },
 
   delete(id) {

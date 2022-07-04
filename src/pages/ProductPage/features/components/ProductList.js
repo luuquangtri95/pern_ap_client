@@ -2,6 +2,7 @@ import { Button, Heading } from "@shopify/polaris";
 import { useEffect, useState } from "react";
 import ModalCustom from "../../../../components/ModalCustom";
 import Table from "../../../../components/Table";
+import ToastCustom from "../../../../components/ToastCustom";
 import productApi from "../../../../services/productApi";
 
 function ProductList() {
@@ -18,7 +19,7 @@ function ProductList() {
         console.log("fetch to fail", error);
       }
     })();
-  }, []);
+  }, [isAction]);
 
   const openModalDeleteProduct = (product) => {
     setIsAction({ action: "delete", product });
