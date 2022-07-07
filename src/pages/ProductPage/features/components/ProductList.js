@@ -45,15 +45,18 @@ function ProductList() {
 
   const handleCreateProduct = async (product) => {
     try {
-      // const formData = new FormData();
-      // product.files.forEach((file) => {
-      //   formData.append("image", file);
-      // });
-      // formData.append("title", product.title);
-      // formData.append("description", product.description);
-      // formData.append("price", product.price);
-      // formData.append("brandId", product.brandId);
-      // await productApi.create(formData);
+      const formData = new FormData();
+
+      product.files.forEach((file) => {
+        formData.append("image", file);
+      });
+
+      formData.append("title", product.title);
+      formData.append("description", product.description);
+      formData.append("price", product.price);
+      formData.append("brandId", product.brandId);
+
+      await productApi.create(formData);
     } catch (error) {
       console.log("create data fail", error);
     }

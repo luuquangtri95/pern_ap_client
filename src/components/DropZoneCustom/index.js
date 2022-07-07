@@ -3,7 +3,6 @@ import { NoteMinor } from "@shopify/polaris-icons";
 import { useState, useCallback, useEffect } from "react";
 
 function DropZoneCustom({ onMultiImage, errorMessage }) {
-  console.log(errorMessage);
   const [files, setFiles] = useState([]);
 
   const handleDropZoneDrop = (_dropFiles, acceptedFiles, _rejectedFiles) => {

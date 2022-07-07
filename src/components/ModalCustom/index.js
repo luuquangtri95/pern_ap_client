@@ -12,6 +12,33 @@ import productApi from "../../services/productApi";
 import formValidate from "../../validation/vaildateProduct";
 import DropZoneCustom from "../DropZoneCustom";
 
+const initState = {
+  title: {
+    value: "",
+    error: "",
+    validate: {
+      require: [true, "Title is not empty"],
+      minlength: [3, "Title at least 3 words"],
+    },
+  },
+  description: {
+    value: "",
+    error: "",
+    validate: {
+      require: [true, "description is not empty"],
+    },
+  },
+  price: {
+    value: 0,
+    error: "",
+    validate: {
+      require: [true, "Price is not empty and > 0$"],
+    },
+  },
+  files: { value: [], error: "" },
+  brandId: "1",
+};
+
 function ModalCustom({
   active,
   setActive,
@@ -22,16 +49,11 @@ function ModalCustom({
 }) {
   // ! state management
   const [brandList, setBrandList] = useState([]);
-  const [formData, setFormData] = useState({
-    title: { value: "", error: "" },
-    description: { value: "", error: "" },
-    price: { value: 0, error: "" },
-    files: { value: [], error: "" },
-    brandId: "1",
-  });
+  const [formData, setFormData] = useState(initState);
 
   const onChange = (name, value) => {
     let _formData = JSON.parse(JSON.stringify(formData));
+    _formData.files = formData.files;
     _formData[name] = { ..._formData[name], error: "" };
 
     if (name === "brandId") {
@@ -45,49 +67,49 @@ function ModalCustom({
 
   // handle validate form
   // formValidate();
-  const handleValidate = () => {
-    try {
-      const _formData = JSON.parse(JSON.stringify(formData));
-      _formData.files = formData.files;
+  // const handleValidate = () => {
+  //   try {
+  //     const _formData = JSON.parse(JSON.stringify(formData));
+  //     _formData.files = formData.files;
 
-      let formValid = true;
+  //     let formValid = true;
 
-      if (!_formData["title"].value) {
-        formValid = false;
+  //     if (!_formData["title"].value) {
+  //       formValid = false;
 
-        _formData["title"] = {
-          ..._formData["title"],
-          error: "Title is not empty",
-        };
-      }
+  //       _formData["title"] = {
+  //         ..._formData["title"],
+  //         error: "Title is not empty",
+  //       };
+  //     }
 
-      if (!_formData["description"].value) {
-        formValid = false;
+  //     if (!_formData["description"].value) {
+  //       formValid = false;
 
-        _formData["description"] = {
-          ..._formData["description"],
-          error: "Description is not empty",
-        };
-      }
+  //       _formData["description"] = {
+  //         ..._formData["description"],
+  //         error: "Description is not empty",
+  //       };
+  //     }
 
-      if (_formData["price"].value === 0 || _formData["price"].value < 100) {
-        formValid = false;
+  //     if (_formData["price"].value === 0 || _formData["price"].value < 100) {
+  //       formValid = false;
 
-        _formData["price"] = {
-          ..._formData["price"],
-          error: "Amount must be greater than 100$",
-        };
-      }
+  //       _formData["price"] = {
+  //         ..._formData["price"],
+  //         error: "Amount must be greater than 100$",
+  //       };
+  //     }
 
-      if (!formValid) {
-        setFormData(_formData);
-      }
+  //     if (!formValid) {
+  //       setFormData(_formData);
+  //     }
 
-      return { formValid, formData: _formData };
-    } catch (error) {
-      return { formValid: false };
-    }
-  };
+  //     return { formValid, formData: _formData };
+  //   } catch (error) {
+  //     return { formValid: false };
+  //   }
+  // };
 
   //
 
@@ -123,9 +145,42 @@ function ModalCustom({
     setIsAction(null);
   };
 
+  const handleValidateField = () => {
+    const _formData = JSON.parse(JSON.stringify(formData));
+
+    const validateTitle = formValidate(_formData.title);
+
+    if (validateTitle.success === false) {
+      _formData.title.error = validateTitle.message;
+    }
+
+    const validateDescription = formValidate(_formData.description);
+    if (validateDescription.success === false) {
+      _formData.description.error = validateDescription.message;
+    }
+
+    const validatePrice = formValidate(_formData.price);
+    if (validatePrice.success === false) {
+      _formData.price.error = validatePrice.message;
+    }
+
+    setFormData(_formData);
+
+    if (
+      validateTitle.success &&
+      validateDescription.success &&
+      validatePrice.success
+    ) {
+      return {
+        success: true,
+        formData: _formData,
+      };
+    }
+  };
+
   const handleSubmit = async () => {
     if (isAction.action === "create") {
-      let { formValid, formData } = handleValidate();
+      const formValid = handleValidateField();
 
       if (formValid) {
         const mapDataFromData = {
@@ -138,14 +193,7 @@ function ModalCustom({
 
         await onSubmit(mapDataFromData);
 
-        setFormData({
-          title: { value: "", error: "" },
-          description: { value: "", error: "" },
-          price: { value: 0, error: "" },
-          brandId: "1",
-          files: { value: [], error: "" },
-        });
-
+        setFormData(initState);
         setIsAction(null);
         setActive(false);
       } else {
@@ -171,8 +219,6 @@ function ModalCustom({
   const handleMultiImage = (fileList) => {
     const _formData = JSON.parse(JSON.stringify(formData));
     _formData.files.value = [...fileList];
-
-    console.log("_formData >>>", _formData);
 
     setFormData(_formData);
   };
