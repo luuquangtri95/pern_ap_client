@@ -2,11 +2,13 @@ import { DropZone, Stack, Thumbnail, Caption } from "@shopify/polaris";
 import { NoteMinor } from "@shopify/polaris-icons";
 import { useState, useCallback, useEffect } from "react";
 
-function DropZoneCustom({ onMultiImage }) {
+function DropZoneCustom({ onMultiImage, errorMessage }) {
+  console.log(errorMessage);
   const [files, setFiles] = useState([]);
 
-  const handleDropZoneDrop = (_dropFiles, acceptedFiles, _rejectedFiles) =>
+  const handleDropZoneDrop = (_dropFiles, acceptedFiles, _rejectedFiles) => {
     setFiles((files) => [...files, ...acceptedFiles]);
+  };
 
   const validImageTypes = ["image/gif", "image/jpeg", "image/png"];
 
@@ -40,10 +42,11 @@ function DropZoneCustom({ onMultiImage }) {
 
   return (
     <div>
-      <DropZone onDrop={handleDropZoneDrop}>
+      <DropZone label="Add multi image" onDrop={handleDropZoneDrop}>
         {uploadedFiles}
         {fileUpload}
       </DropZone>
+      {!!errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
     </div>
   );
 }

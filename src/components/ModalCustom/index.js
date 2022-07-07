@@ -9,6 +9,7 @@ import {
 } from "@shopify/polaris";
 import { useEffect, useState } from "react";
 import productApi from "../../services/productApi";
+import formValidate from "../../validation/vaildateProduct";
 import DropZoneCustom from "../DropZoneCustom";
 
 function ModalCustom({
@@ -19,20 +20,76 @@ function ModalCustom({
   onDelete,
   onSubmit,
 }) {
+  // ! state management
   const [brandList, setBrandList] = useState([]);
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    price: 0,
+    title: { value: "", error: "" },
+    description: { value: "", error: "" },
+    price: { value: 0, error: "" },
+    files: { value: [], error: "" },
     brandId: "1",
   });
 
   const onChange = (name, value) => {
     let _formData = JSON.parse(JSON.stringify(formData));
-    _formData[name] = value;
+    _formData[name] = { ..._formData[name], error: "" };
+
+    if (name === "brandId") {
+      _formData[name] = value;
+    }
+
+    _formData[name].value = value;
 
     setFormData(_formData);
   };
+
+  // handle validate form
+  // formValidate();
+  const handleValidate = () => {
+    try {
+      const _formData = JSON.parse(JSON.stringify(formData));
+      _formData.files = formData.files;
+
+      let formValid = true;
+
+      if (!_formData["title"].value) {
+        formValid = false;
+
+        _formData["title"] = {
+          ..._formData["title"],
+          error: "Title is not empty",
+        };
+      }
+
+      if (!_formData["description"].value) {
+        formValid = false;
+
+        _formData["description"] = {
+          ..._formData["description"],
+          error: "Description is not empty",
+        };
+      }
+
+      if (_formData["price"].value === 0 || _formData["price"].value < 100) {
+        formValid = false;
+
+        _formData["price"] = {
+          ..._formData["price"],
+          error: "Amount must be greater than 100$",
+        };
+      }
+
+      if (!formValid) {
+        setFormData(_formData);
+      }
+
+      return { formValid, formData: _formData };
+    } catch (error) {
+      return { formValid: false };
+    }
+  };
+
+  //
 
   useEffect(() => {
     if (isAction.action === "edit")
@@ -68,14 +125,32 @@ function ModalCustom({
 
   const handleSubmit = async () => {
     if (isAction.action === "create") {
-      await onSubmit(formData);
-      setFormData({
-        title: "",
-        description: "",
-        price: 0,
-        brandId: "1",
-      });
-      setIsAction(null);
+      let { formValid, formData } = handleValidate();
+
+      if (formValid) {
+        const mapDataFromData = {
+          title: formData.title.value,
+          description: formData.description.value,
+          price: formData.price.value,
+          brandId: formData.brandId,
+          files: formData.files.value,
+        };
+
+        await onSubmit(mapDataFromData);
+
+        setFormData({
+          title: { value: "", error: "" },
+          description: { value: "", error: "" },
+          price: { value: 0, error: "" },
+          brandId: "1",
+          files: { value: [], error: "" },
+        });
+
+        setIsAction(null);
+        setActive(false);
+      } else {
+        setActive(true);
+      }
     }
 
     if (isAction.action === "edit") {
@@ -90,14 +165,16 @@ function ModalCustom({
       setIsAction(null);
     }
 
-    setActive(false);
+    // setActive(false);
   };
 
   const handleMultiImage = (fileList) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      files: fileList,
-    }));
+    const _formData = JSON.parse(JSON.stringify(formData));
+    _formData.files.value = [...fileList];
+
+    console.log("_formData >>>", _formData);
+
+    setFormData(_formData);
   };
 
   return (
@@ -149,23 +226,29 @@ function ModalCustom({
                   <TextField
                     label="Title"
                     type="text"
-                    value={formData.title}
+                    error={formData.title.error}
+                    value={formData.title.value}
                     onChange={(value) => onChange("title", value)}
                   />
                   <TextField
                     label="Description"
                     type="text"
-                    value={formData.description}
+                    error={formData.description.error}
+                    value={formData.description.value}
                     onChange={(value) => onChange("description", value)}
                   />
                   <TextField
                     label="Price"
                     type="number"
-                    value={formData.price}
+                    error={formData.price.error}
+                    value={formData.price.value}
                     onChange={(value) => onChange("price", value)}
                   />
 
-                  <DropZoneCustom onMultiImage={handleMultiImage} />
+                  <DropZoneCustom
+                    errorMessage={formData.files.error}
+                    onMultiImage={handleMultiImage}
+                  />
 
                   <Select
                     label="Select Brand"

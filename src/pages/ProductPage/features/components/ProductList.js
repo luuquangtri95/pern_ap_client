@@ -2,7 +2,6 @@ import { Button, Heading } from "@shopify/polaris";
 import { useEffect, useState } from "react";
 import ModalCustom from "../../../../components/ModalCustom";
 import Table from "../../../../components/Table";
-import ToastCustom from "../../../../components/ToastCustom";
 import productApi from "../../../../services/productApi";
 
 function ProductList() {
@@ -46,18 +45,15 @@ function ProductList() {
 
   const handleCreateProduct = async (product) => {
     try {
-      const formData = new FormData();
-
-      product.files.forEach((file) => {
-        formData.append("image", file);
-      });
-
-      formData.append("title", product.title);
-      formData.append("description", product.description);
-      formData.append("price", product.price);
-      formData.append("brandId", product.brandId);
-
-      await productApi.create(formData);
+      // const formData = new FormData();
+      // product.files.forEach((file) => {
+      //   formData.append("image", file);
+      // });
+      // formData.append("title", product.title);
+      // formData.append("description", product.description);
+      // formData.append("price", product.price);
+      // formData.append("brandId", product.brandId);
+      // await productApi.create(formData);
     } catch (error) {
       console.log("create data fail", error);
     }
